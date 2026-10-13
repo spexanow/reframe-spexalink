@@ -247,14 +247,14 @@
       head(q) +
       '<div class="field"><label for="q-challenge">Your challenge</label>' +
       '<textarea id="q-challenge" maxlength="800" aria-describedby="qErr">' + esc(state.answers.challenge || "") + "</textarea></div>" +
-      '<p class="err" id="qErr" role="alert" hidden>Add a sentence or two so Mona knows where to start.</p>' +
+      '<p class="err" id="qErr" role="alert" hidden>Add a sentence or two (at least 8 words) so Mona knows where to start.</p>' +
       '<div class="actions"><button class="btn" type="button" id="qNext">Continue</button><button class="btn-quiet" type="button" id="qBack">Back</button></div>'
     );
     const ta = $("#q-challenge");
     ta.addEventListener("input", () => { state.answers.challenge = ta.value; save(); });
     $("#qNext").onclick = () => {
       const v = ta.value.trim();
-      if (v.length < 10) { $("#qErr").hidden = false; ta.focus(); return; }
+      if (v.split(/\s+/).filter(Boolean).length < 8) { $("#qErr").hidden = false; ta.focus(); return; }
       state.answers.challenge = v; state.q++; render();
     };
     $("#qBack").onclick = back;
