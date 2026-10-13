@@ -269,14 +269,14 @@
       '<form id="contactForm" class="check-form" novalidate>' +
         '<div class="fields">' +
           '<div class="field"><label for="c-name">Name</label><input id="c-name" autocomplete="name" required value="' + esc(c.name) + '"></div>' +
-          '<div class="field"><label for="c-email">Work email</label><input id="c-email" type="email" autocomplete="email" inputmode="email" required value="' + esc(c.email) + '"></div>' +
+          '<div class="field"><label for="c-email">Email <span class="hint">(work or private)</span></label><input id="c-email" type="email" autocomplete="email" inputmode="email" required value="' + esc(c.email) + '"></div>' +
           '<div class="field"><label for="c-company">Company</label><input id="c-company" autocomplete="organization" value="' + esc(c.company) + '"></div>' +
           '<div class="field"><label for="c-linkedin">LinkedIn profile <span class="hint">(optional)</span></label><input id="c-linkedin" inputmode="url" value="' + esc(c.linkedin) + '"></div>' +
           '<div class="field"><label for="c-source">How did you hear about Mona?</label><select id="c-source">' +
             SOURCES.map((s) => "<option" + (c.source === s ? " selected" : "") + ">" + esc(s) + "</option>").join("") +
           "</select></div>" +
         "</div>" +
-        '<p class="err" id="cErr" role="alert" hidden>Add your name and work email to see your read.</p>' +
+        '<p class="err" id="cErr" role="alert" hidden>Add your name and email to see your read.</p>' +
         '<div class="actions" style="margin-top:26px"><button class="btn" type="submit">See my read</button><button class="btn-quiet" type="button" id="qBack">Back</button></div>' +
         '<p class="fine" style="margin-top:16px">Your answers go to Mona only. What you share stays private.</p>' +
       "</form>"
@@ -312,13 +312,13 @@
     if (a.role === 3) why.push("other C-suite");
     if (a.decide === 2) why.push("HR or L&D decides");
     if (a.start === 2) why.push("starting later this year");
-    if (personal) why.push("personal email");
     if (vague) why.push("short challenge");
+    const flags = personal ? ["personal email: check LinkedIn before the call"] : [];
 
     const pts = (v, two, one) => two.indexOf(v) > -1 ? 2 : one.indexOf(v) > -1 ? 1 : 0;
     const score = pts(a.change, [0, 1, 3], [2, 4]) + pts(a.tenure, [1], [0, 2]) + pts(a.want, [0], [1]) + pts(a.decide, [0], [1]) + pts(a.start, [0], [1]);
 
-    return { outcome: reason ? "not" : why.length ? "review" : "unlocked", reason: reason, score: score, why: why };
+    return { outcome: reason ? "not" : why.length ? "review" : "unlocked", reason: reason, score: score, why: why, flags: flags };
   }
 
   function answerText(key) {
@@ -335,7 +335,7 @@
     const r = state.result, c = state.contact;
     const fields = {
       "form-name": CONFIG.formName,
-      outcome: r.outcome === "unlocked" ? "Unlocked: calendar shown" : r.outcome === "review" ? "Mona to review: " + r.why.join(", ") : "Not right now",
+      outcome: (r.outcome === "unlocked" ? "Unlocked: calendar shown" : r.outcome === "review" ? "Mona to review: " + r.why.join(", ") : "Not right now") + ((r.flags || []).length ? " (" + r.flags.join("; ") + ")" : ""),
       priority: r.outcome === "not" ? "Not scored" : r.score + "/10" + (r.score >= 8 ? " (offer the earliest slot)" : ""),
       review_reasons: r.outcome === "not" ? (r.reason || "") : r.why.join(", "),
       name: c.name, email: c.email, company: c.company, linkedin: c.linkedin,
