@@ -385,7 +385,7 @@
 
     let html = "";
     if (r.outcome === "unlocked") {
-      html += '<div class="open-bar" role="status"><p>Your Discovery/Match Call with Mona is open.</p><button class="btn" type="button" id="toCal">Choose a time</button></div>';
+      html += '<div class="open-bar" role="status"><p>You qualify. Your Discovery/Match Call with Mona is open.</p><a class="btn" href="' + esc(calendlyUrl(false)) + '" target="_blank" rel="noopener">Book your call</a></div>';
     }
     html +=
       '<div class="read"><p class="who">Your read' + (first ? ", " + esc(first) : "") + "</p>" +
@@ -400,8 +400,8 @@
           '<h3 id="inviteTitle">You\'re invited to a Discovery/Match Call.</h3>' +
           "<p>Sixty minutes with Mona. Bring the challenge you described and she'll reframe it with you, so you leave with something useful either way. Then you both decide whether working together makes sense.</p>" +
           (a.challenge ? '<p class="yours">“' + esc(a.challenge) + "”</p>" : "") +
+          '<div class="actions"><a class="btn" href="' + esc(calendlyUrl(false)) + '" target="_blank" rel="noopener">Book your Discovery/Match Call</a><span class="fine">Or pick a time below.</span></div>' +
           '<div class="cal"><iframe id="calFrame" title="Book your Discovery/Match Call" loading="lazy" src="' + esc(calendlyUrl(true)) + '"></iframe></div>' +
-          '<p class="cal-alt">Calendar not loading? <a href="' + esc(calendlyUrl(false)) + '" target="_blank" rel="noopener">Open it in a new tab</a>.</p>' +
           '<ul class="promises"><li>What you talk about stays between you and Mona.</li><li>If Mona isn\'t the right person for what you need, she\'ll say so and recommend someone who is.</li></ul>' +
         "</section>";
     } else if (r.outcome === "review") {
