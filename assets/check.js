@@ -526,7 +526,8 @@
       state.booked = true;
       save();
       track("Booked");
-      if (!check.hidden) renderBooked();
+      // Send them to the thank-you page with Mona's pre-call video.
+      setTimeout(() => { location.href = "/ceo/booked/"; }, 600);
     }
   });
 
