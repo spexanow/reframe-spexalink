@@ -1,5 +1,7 @@
 /* The Reframe Check: a three-minute diagnostic that doubles as the application.
-   Qualified leaders unlock the booking calendar. Every completed check is sent to Netlify Forms. */
+   Name and email come first, so every lead is kept even if they stop early.
+   Each step (email given, left early, completed, booked) goes to the Reframe Leads Google Sheet via Zapier.
+   Completed checks also go to Netlify Forms. Qualified leaders unlock the booking calendar. */
 (function () {
   "use strict";
 
@@ -7,8 +9,10 @@
   const CONFIG = {
     // Paste the video embed link here when it's ready (Vimeo, YouTube or Wistia embed URL).
     video: "",
-    // Switch to the unlisted 60-minute Discovery/Match Call event link when it exists.
+    // Switch to the private 60-minute Reframe Check call event link when it exists.
     calendly: "https://calendly.com/reframewithmona",
+    // Zapier catch hook: adds a row to the Reframe Leads sheet for every step.
+    hook: "https://hooks.zapier.com/hooks/catch/28953308/Cb79kg1jRElPmOAjN/",
     formName: "reframe-check",
     formPath: "/ceo/",
     reply: "within one business day"
@@ -43,9 +47,11 @@
 
   /* ---------- State (kept for this browser tab only) ---------- */
   const KEY = "reframe-check-v1";
-  const fresh = () => ({ q: -1, answers: {}, contact: {}, result: null, sentKey: "", booked: false });
+  const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  const fresh = () => ({ q: -1, answers: {}, contact: {}, result: null, sentKey: "", booked: false, session: newId(), leftAt: null });
   let state = fresh();
   try { const saved = JSON.parse(sessionStorage.getItem(KEY) || "null"); if (saved && typeof saved === "object") state = Object.assign(fresh(), saved); } catch (e) { /* storage unavailable */ }
+  if (!state.session) state.session = newId();
   const save = () => { try { sessionStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* storage unavailable */ } };
 
   // Where the visitor came from (kept across the session)
@@ -102,6 +108,7 @@
 
   function closeCheck(fromHistory) {
     if (check.hidden) return;
+    recordLeft();
     check.hidden = true;
     document.body.classList.remove("check-open");
     page.inert = false;
@@ -143,6 +150,7 @@
   function render() {
     if (state.result) return renderResult();
     if (state.q < 0) return renderIntro();
+    if (!state.contact.email) return renderLead();
     if (state.q >= TOTAL) return renderContact();
     const q = QUESTIONS[state.q];
     if (q.type === "text") return renderText(q);
@@ -154,9 +162,9 @@
     show(
       '<div class="qhead"><h1 class="qtitle">A three-minute diagnostic for leaders in a new chapter.</h1></div>' +
       '<ul class="intro-list">' +
-        "<li>Eleven short questions about your seat, your team and the fit. Ten taps and one sentence.</li>" +
+        "<li>Your name and email, then eleven short questions about your seat, your team and the fit.</li>" +
         "<li>You'll get a read of the pattern you're in and one reframe to try this week.</li>" +
-        "<li>If it looks like a fit, the calendar opens for a sixty-minute Discovery/Match Call with Mona.</li>" +
+        "<li>If it looks like a fit, the calendar opens for a 60-minute Reframe Check call with Mona.</li>" +
       "</ul>" +
       '<div class="actions">' +
         (started
@@ -261,22 +269,47 @@
     if (window.matchMedia("(hover: hover)").matches) ta.focus({ preventScroll: true });
   }
 
+  function renderLead() {
+    const c = state.contact;
+    show(
+      '<div class="qhead"><p class="count">Before we start</p><h2 class="qtitle">First, where can Mona reach you?</h2>' +
+      '<p class="qhelp">So your read and any reply from Mona reach the right person.</p></div>' +
+      '<form id="leadForm" class="check-form" novalidate>' +
+        '<div class="fields">' +
+          '<div class="field"><label for="c-name">Name</label><input id="c-name" autocomplete="name" required value="' + esc(c.name) + '"></div>' +
+          '<div class="field"><label for="c-email">Email <span class="hint">(work or private)</span></label><input id="c-email" type="email" autocomplete="email" inputmode="email" required value="' + esc(c.email) + '"></div>' +
+        "</div>" +
+        '<p class="err" id="lErr" role="alert" hidden>Add your name and a valid email to continue.</p>' +
+        '<div class="actions" style="margin-top:26px"><button class="btn" type="submit">Continue</button><button class="btn-quiet" type="button" id="lBack">Back</button></div>' +
+        '<p class="fine" style="margin-top:16px">Your details go to Mona only. No newsletter unless you ask.</p>' +
+      "</form>"
+    );
+    $("#lBack").onclick = () => { state.q = -1; render(); };
+    $("#leadForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = $("#c-name").value.trim();
+      const email = $("#c-email").value.trim();
+      if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { $("#lErr").hidden = false; return; }
+      state.contact = Object.assign({}, state.contact, { name: name, email: email });
+      save();
+      track("Email given");
+      render();
+    });
+  }
+
   function renderContact() {
     const c = state.contact;
     show(
       progress() +
-      '<div class="qhead"><p class="count">Last step</p><h2 class="qtitle">Where can Mona reach you?</h2></div>' +
+      '<div class="qhead"><p class="count">Last step</p><h2 class="qtitle">A little about your company</h2></div>' +
       '<form id="contactForm" class="check-form" novalidate>' +
         '<div class="fields">' +
-          '<div class="field"><label for="c-name">Name</label><input id="c-name" autocomplete="name" required value="' + esc(c.name) + '"></div>' +
-          '<div class="field"><label for="c-email">Email <span class="hint">(work or private)</span></label><input id="c-email" type="email" autocomplete="email" inputmode="email" required value="' + esc(c.email) + '"></div>' +
           '<div class="field"><label for="c-company">Company</label><input id="c-company" autocomplete="organization" value="' + esc(c.company) + '"></div>' +
           '<div class="field"><label for="c-linkedin">LinkedIn profile <span class="hint">(optional)</span></label><input id="c-linkedin" inputmode="url" value="' + esc(c.linkedin) + '"></div>' +
           '<div class="field"><label for="c-source">How did you hear about Mona?</label><select id="c-source">' +
             SOURCES.map((s) => "<option" + (c.source === s ? " selected" : "") + ">" + esc(s) + "</option>").join("") +
           "</select></div>" +
         "</div>" +
-        '<p class="err" id="cErr" role="alert" hidden>Add your name and email to see your read.</p>' +
         '<div class="actions" style="margin-top:26px"><button class="btn" type="submit">See my read</button><button class="btn-quiet" type="button" id="qBack">Back</button></div>' +
         '<p class="fine" style="margin-top:16px">Your answers go to Mona only. What you share stays private.</p>' +
       "</form>"
@@ -284,13 +317,11 @@
     $("#qBack").onclick = back;
     $("#contactForm").addEventListener("submit", (e) => {
       e.preventDefault();
-      const name = $("#c-name").value.trim();
-      const email = $("#c-email").value.trim();
-      if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { $("#cErr").hidden = false; return; }
-      state.contact = { name: name, email: email, company: $("#c-company").value.trim(), linkedin: $("#c-linkedin").value.trim(), source: $("#c-source").value };
+      state.contact = Object.assign({}, state.contact, { company: $("#c-company").value.trim(), linkedin: $("#c-linkedin").value.trim(), source: $("#c-source").value });
       state.result = classify(state.answers, state.contact);
       state.booked = false;
       send();
+      track("Completed");
       render();
     });
   }
@@ -298,8 +329,8 @@
   /* ---------- Qualification ---------- */
   function classify(a, contact) {
     let reason = null;
-    if (a.role === 4) reason = "The Discovery/Match Call is built for CEOs, founders and presidents. If someone on your leadership team is in that seat, this page may be useful to them.";
-    else if (a.size === 0) reason = "The Discovery/Match Call is built for leaders of companies with about 50 people or more.";
+    if (a.role === 4) reason = "The Reframe Check call is built for CEOs, founders and presidents. If someone on your leadership team is in that seat, this page may be useful to them.";
+    else if (a.size === 0) reason = "The Reframe Check call is built for leaders of companies with about 50 people or more.";
     else if (a.want === 2) reason = "It sounds like you want someone to fix the team directly. That's consulting work. Mona works with the leader, as a thinking partner.";
     else if (a.decide === 3) reason = "You said this isn't the right time to invest. That's fine. When it is, the Reframe Check will be here.";
     else if (a.start === 3) reason = "You said you're exploring, which is fine. When the timing is right, the Reframe Check will be here.";
@@ -358,6 +389,45 @@
     post().catch(() => setTimeout(() => post().catch((err) => console.warn("Reframe Check could not be sent:", err)), 2500));
   }
 
+  /* ---------- Sending each step to the Reframe Leads sheet (Zapier) ---------- */
+  function track(stage) {
+    if (!CONFIG.hook || !state.contact.email) return;
+    const r = state.result, c = state.contact;
+    const data = {
+      ts: new Date().toISOString(),
+      stage: stage,
+      reached: state.result ? "All " + TOTAL + " questions" : state.q >= TOTAL ? "Last step" : "Question " + (Math.max(state.q, 0) + 1) + " of " + TOTAL,
+      result: stage === "Booked" ? "Booked a Reframe Check call" : r ? (r.outcome === "unlocked" ? "Qualified: calendar shown" : r.outcome === "review" ? "Mona to review" : "Not right now") : "",
+      priority: r && r.outcome !== "not" ? r.score + "/10" : "",
+      reasons: r ? (r.outcome === "not" ? (r.reason || "") : r.why.concat(r.flags || []).join("; ")) : "",
+      name: c.name || "", email: c.email || "", company: c.company || "", linkedin: c.linkedin || "",
+      challenge: answerText("challenge"),
+      role: answerText("role"), size: answerText("size"), change: answerText("change"), tenure: answerText("tenure"),
+      monday: answerText("monday"), belief: answerText("belief"), tried: answerText("tried"),
+      want: answerText("want"), decide: answerText("decide"), start: answerText("start"),
+      pattern: PATTERNS[state.answers.monday] ? PATTERNS[state.answers.monday].name : "",
+      source: c.source || "",
+      utm_source: tracking.utm_source || "", utm_medium: tracking.utm_medium || "", utm_campaign: tracking.utm_campaign || "", utm_content: tracking.utm_content || "",
+      referrer: tracking.referrer || "",
+      session: state.session
+    };
+    const body = new URLSearchParams(data);
+    try {
+      if (navigator.sendBeacon && navigator.sendBeacon(CONFIG.hook, body)) return;
+    } catch (e) { /* fall through to fetch */ }
+    try { fetch(CONFIG.hook, { method: "POST", mode: "no-cors", body: body, keepalive: true }); } catch (e) { /* offline */ }
+  }
+
+  // Someone who gave their email but stops before the end is still recorded, once per question.
+  function recordLeft() {
+    if (!state.contact.email || state.result || state.q < 0 || state.leftAt === state.q) return;
+    state.leftAt = state.q;
+    save();
+    track("Left early");
+  }
+  window.addEventListener("pagehide", recordLeft);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && !check.hidden) recordLeft(); });
+
   /* ---------- Result ---------- */
   function calendlyUrl(embed) {
     let u;
@@ -385,7 +455,7 @@
 
     let html = "";
     if (r.outcome === "unlocked") {
-      html += '<div class="open-bar" role="status"><p>You qualify. Your Discovery/Match Call with Mona is open.</p><a class="btn" href="' + esc(calendlyUrl(false)) + '" target="_blank" rel="noopener">Book your call</a></div>';
+      html += '<div class="open-bar" role="status"><p>You qualify. Your Reframe Check call with Mona is open.</p><a class="btn" href="' + esc(calendlyUrl(false)) + '" target="_blank" rel="noopener">Book your call</a></div>';
     }
     html +=
       '<div class="read"><p class="who">Your read' + (first ? ", " + esc(first) : "") + "</p>" +
@@ -397,11 +467,11 @@
     if (r.outcome === "unlocked") {
       html +=
         '<section class="invite" id="invite" aria-labelledby="inviteTitle">' +
-          '<h3 id="inviteTitle">You\'re invited to a Discovery/Match Call.</h3>' +
+          '<h3 id="inviteTitle">You\'re invited to a Reframe Check call.</h3>' +
           "<p>Sixty minutes with Mona. Bring the challenge you described and she'll reframe it with you, so you leave with something useful either way. Then you both decide whether working together makes sense.</p>" +
           (a.challenge ? '<p class="yours">“' + esc(a.challenge) + "”</p>" : "") +
-          '<div class="actions"><a class="btn" href="' + esc(calendlyUrl(false)) + '" target="_blank" rel="noopener">Book your Discovery/Match Call</a><span class="fine">Or pick a time below.</span></div>' +
-          '<div class="cal"><iframe id="calFrame" title="Book your Discovery/Match Call" loading="lazy" src="' + esc(calendlyUrl(true)) + '"></iframe></div>' +
+          '<div class="actions"><a class="btn" href="' + esc(calendlyUrl(false)) + '" target="_blank" rel="noopener">Book your Reframe Check call</a><span class="fine">Or pick a time below.</span></div>' +
+          '<div class="cal"><iframe id="calFrame" title="Book your Reframe Check call" loading="lazy" src="' + esc(calendlyUrl(true)) + '"></iframe></div>' +
           '<ul class="promises"><li>What you talk about stays between you and Mona.</li><li>If Mona isn\'t the right person for what you need, she\'ll say so and recommend someone who is.</li></ul>' +
         "</section>";
     } else if (r.outcome === "review") {
@@ -455,6 +525,7 @@
     if (e.data.event === "calendly.event_scheduled") {
       state.booked = true;
       save();
+      track("Booked");
       if (!check.hidden) renderBooked();
     }
   });
