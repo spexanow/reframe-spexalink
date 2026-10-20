@@ -10,7 +10,7 @@
     // Paste the video embed link here when it's ready (Vimeo, YouTube or Wistia embed URL).
     video: "",
     // Switch to the private 60-minute Reframe Check call event link when it exists.
-    calendly: "https://calendly.com/reframewithmona",
+    calendly: "https://calendly.com/reframewithmona/reframe-check",
     // Zapier catch hook: adds a row to the Reframe Leads sheet for every step.
     hook: "https://hooks.zapier.com/hooks/catch/28953308/Cb79kg1jRElPmOAjN/",
     formName: "reframe-check",
