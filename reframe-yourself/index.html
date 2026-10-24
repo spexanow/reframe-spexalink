@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reframe Yourself · Reframe with Mona</title>
+<meta name="description" content="Reframe your challenge in nine minutes, with your own AI. Based on Mona Patel's 9-Minute Reframe.">
+<meta property="og:title" content="Reframe Yourself">
+<meta property="og:description" content="Reframe your challenge in nine minutes, with your own AI.">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,500&family=Figtree:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a calm two-page flow. Page 1 = 3·20·1 + form; page 2 = one prompt, three steps, an ending matched to the person's role.
+   Placeholder palette until Mona's brand standards are applied. Serif for headings and big numbers only; everything people read is plain sans. */
+:root{
+  --bg:#FAF9FB; --surface:#FFFFFF; --ink:#1F1726; --muted:#4A4152; --faint:#625870; --line:#E3DEE8;
+  --accent:#7A3B6E; --accent-soft:#F3E9F1; --accent-ink:#5E2B55;
+  --mark:#C9871F; --mark-soft:#FBF1DF;
+  --care:#FBEDEB; --care-ink:#7A2E2A;
+  --code:#F4F1F7; --proto:#F3E9F1; --proto-ink:#1F1726;
+  --display:"Newsreader", Georgia, "Times New Roman", serif;
+  --body:"Figtree", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+/* Light only, by choice: readability first. */
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+q,blockquote{font-style:normal}
+b,strong{font-weight:700;color:var(--ink)}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0 64px}
+.wrap{max-width:1040px;margin:0 auto}
+.col{max-width:760px;margin:0 auto}
+p{margin:0;max-width:62ch}
+a{color:var(--accent)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Review bar (prototype only) */
+.proto{max-width:1040px;margin:14px auto 0;background:var(--proto);color:var(--proto-ink);border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-size:13.5px;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.proto strong{font-weight:700}
+.proto .grp{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.proto .pg{font:inherit;font-weight:600;padding:5px 11px;border-radius:999px;border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer}
+.proto .pg[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.proto select{font:inherit;padding:4px 6px;border-radius:8px;border:1px solid currentColor;background:#fff;color:inherit}
+
+/* Header */
+header.brand{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:20px 0 18px;border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:baseline;gap:10px;color:var(--ink);text-decoration:none;min-width:0}
+.logo b{font-family:var(--display);font-weight:500;font-size:22px}
+.logo small{font-size:13px;color:var(--faint);font-weight:500;letter-spacing:.06em;text-transform:uppercase}
+.hlink{font-weight:600;font-size:14.5px;color:var(--accent);text-decoration:none;white-space:nowrap}
+
+/* Page 1 */
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:56px;align-items:start;padding-top:40px}
+.hero > div{min-width:0;display:flex;flex-direction:column;gap:26px}
+h1{font-family:var(--display);font-weight:500;font-size:clamp(38px,5.4vw,58px);line-height:1.08;letter-spacing:-.015em;margin:0;text-wrap:balance}
+h1 em{font-style:italic;color:var(--accent)}
+.lede{font-size:18.5px;color:var(--muted)}
+h2{font-family:var(--display);font-weight:500;font-size:clamp(26px,3.2vw,32px);line-height:1.18;margin:0;text-wrap:balance}
+h2 em{font-style:italic;color:var(--accent)}
+
+/* 3 · 20 · 1 */
+.counts{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.counts li{display:grid;grid-template-columns:84px minmax(0,1fr);gap:18px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.counts .n{font-family:var(--display);font-weight:500;font-size:52px;line-height:1;color:var(--accent);font-variant-numeric:lining-nums}
+.counts .t{font-size:18px;line-height:1.4;min-width:0}
+.counts .t span{display:block;color:var(--muted);font-size:15.5px}
+
+/* Example what-ifs */
+.sample{display:flex;flex-direction:column;gap:8px}
+.sample .lab{font-size:12.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.wi{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--mark);border-radius:10px;padding:11px 14px}
+.wi q{font-size:16.5px;font-weight:500;line-height:1.4;quotes:none}
+
+/* Form */
+.gate{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:14px;padding:28px 24px 24px;display:flex;flex-direction:column;gap:16px;box-shadow:0 1px 2px rgba(36,25,44,.04),0 16px 40px rgba(36,25,44,.07)}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.field input,.field select{font:inherit;font-size:16px;padding:12px 13px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);min-width:0;width:100%}
+.field input:focus,.field select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;color:var(--muted)}
+.check input{margin-top:3px;width:18px;height:18px;accent-color:var(--accent);flex:none}
+.btn{font:inherit;font-weight:700;font-size:16px;background:var(--accent);color:var(--surface);border:0;border-radius:10px;padding:14px 22px;cursor:pointer;text-decoration:none;display:inline-block;text-align:center}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.err{color:var(--care-ink);font-size:14px}
+.trust{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.trust li{padding-left:24px;position:relative}
+.trust li::before{content:"";position:absolute;left:3px;top:.62em;width:9px;height:9px;border-radius:50%;background:var(--mark)}
+
+/* Page 2 */
+.p2head{padding-top:36px;display:flex;flex-direction:column;gap:12px}
+.flow{list-style:none;margin:28px 0 0;padding:0;display:flex;flex-direction:column;gap:14px}
+.flow > li{display:grid;grid-template-columns:48px minmax(0,1fr);gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px}
+.flow > li > div{min-width:0;display:flex;flex-direction:column;gap:12px}
+.num{font-family:var(--display);font-size:40px;line-height:.95;color:var(--accent);font-weight:500}
+.flow h3{font-family:var(--body);font-weight:700;font-size:19px;line-height:1.3;margin:4px 0 0}
+details.peek summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:14.5px}
+.prompt{background:var(--code);border:1px solid var(--line);border-radius:10px;margin-top:10px;overflow:hidden}
+.prompt pre{margin:0;padding:14px 16px;font-family:var(--body);font-size:15px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink);max-height:380px;overflow:auto}
+.ais{display:flex;flex-wrap:wrap;gap:8px}
+.ais a{font-size:15px;font-weight:700;text-decoration:none;color:var(--accent);border:1.5px solid var(--accent);background:var(--surface);border-radius:999px;padding:8px 16px}
+.ais a::after{content:" \2197";font-weight:500}
+.ais a:hover{background:var(--accent);color:var(--surface)}
+
+/* The six stages, in one row */
+.stages{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px;display:flex;flex-direction:column;gap:14px}
+.stages .lab{font-size:12.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.track{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0}
+.track li{position:relative;display:flex;flex-direction:column;gap:6px;padding:0 10px 0 0;min-width:0;font-size:14.5px;line-height:1.35}
+.track li::before{content:"";position:absolute;top:15px;left:32px;right:0;height:1.5px;background:var(--line)}
+.track li:last-child::before{display:none}
+.track b{position:relative;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--surface);display:grid;place-items:center;font-size:14px;font-weight:800}
+.tip{background:var(--mark-soft);border-radius:10px;padding:12px 14px;font-size:15px}
+
+.next{margin-top:28px;background:var(--accent-soft);border-radius:16px;padding:28px 26px;display:flex;flex-direction:column;gap:14px}
+.next .who{font-size:12.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink)}
+.next blockquote{margin:0;padding:14px 16px;background:var(--surface);border-left:3px solid var(--accent);border-radius:10px;font-size:16.5px;line-height:1.6}
+.next .acts{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.next hr{border:0;border-top:1px solid color-mix(in oklab, var(--accent) 25%, transparent);width:100%;margin:4px 0}
+.demo{font-size:13.5px;color:var(--muted)}
+
+.cant{margin-top:32px;border-top:1px solid var(--line);padding-top:26px;display:flex;flex-direction:column;gap:14px}
+.cant dl{margin:0;display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px 16px}
+.cant dt{font-weight:700}
+.cant dd{margin:0;color:var(--muted)}
+.care{margin-top:24px;background:var(--care);border-radius:12px;padding:16px 20px;font-size:14.5px;line-height:1.55}
+.care b{color:var(--care-ink)}
+footer{margin-top:36px;color:var(--faint);font-size:13.5px;border-top:1px solid var(--line);padding-top:16px}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;gap:32px;padding-top:28px}
+  .track{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:16px}
+  .track li:nth-child(3)::before{display:none}
+}
+@media (max-width:560px){
+  .row2{grid-template-columns:1fr}
+  .track{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .track li:nth-child(3)::before{display:block}
+  .track li:nth-child(2n)::before{display:none}
+  .flow > li{grid-template-columns:1fr;gap:6px;padding:18px}
+  .counts li{grid-template-columns:64px minmax(0,1fr);gap:12px}
+  .counts .n{font-size:42px}
+  .logo small{display:none}
+  .cant dl{grid-template-columns:1fr;gap:2px 0}
+  .cant dd{margin-bottom:10px}
+  .gate{padding:24px 18px 20px}
+}
+@media (prefers-reduced-motion:no-preference){ .btn,.ais a{transition:filter .15s,background .15s,color .15s} }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+
+<!-- ============ PAGE 1 ============ -->
+<div id="page1">
+  <header class="brand"><a class="logo" href="#gate"><b>Reframe with Mona</b><small>Reframe Yourself</small></a><a class="hlink" href="#gate">Start now</a></header>
+
+  <div class="hero">
+    <div>
+      <h1>Reframe your challenge in <em>nine minutes.</em></h1>
+
+      <ul class="counts" aria-label="How it works">
+        <li><span class="n">3</span><span class="t"><b>minutes</b><span>Talk out a stuck situation, out loud</span></span></li>
+        <li><span class="n">20</span><span class="t"><b>what-ifs</b><span>From your own AI</span></span></li>
+        <li><span class="n">1</span><span class="t"><b>action</b><span>To take this week</span></span></li>
+      </ul>
+
+      <div class="sample" aria-label="Example what-ifs">
+        <span class="lab">Example what-ifs</span>
+        <div class="wi"><q>What if the deadline isn't the real pressure here?</q></div>
+        <div class="wi"><q>I wonder what you'd tell yourself about this a year from now.</q></div>
+        <div class="wi"><q>What if the person you're avoiding is waiting for you to go first?</q></div>
+      </div>
+    </div>
+
+    <div>
+      <form class="gate" id="gate" novalidate>
+        <h2>Reframe <em>yourself</em></h2>
+        <div class="row2">
+          <div class="field"><label for="fname">First name</label><input id="fname" name="fname" autocomplete="given-name"></div>
+          <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email"></div>
+        </div>
+        <div class="field"><label for="role">Which fits you best?</label>
+          <select id="role" name="role">
+            <option value="" disabled selected>Choose one</option>
+            <option value="leader">Senior leader (director, VP, C-suite, founder)</option>
+            <option value="manager">Manager or team lead</option>
+            <option value="cos">Chief of staff, EA or business partner</option>
+            <option value="other">Specialist or individual contributor</option>
+            <option value="other">Something else</option>
+          </select>
+        </div>
+        <label class="check" for="notes"><input type="checkbox" id="notes" name="notes"> <span>Send me Mona's monthly notes on leading through change.</span></label>
+        <button class="btn" type="submit">Start now</button>
+        <div class="err" id="err" hidden>Please add your first name, an email like name@company.com, and pick the option that fits you best.</div>
+        <ul class="trust">
+          <li><b>About 9 minutes,</b> start to finish</li>
+          <li><b>Your own AI:</b> Claude, ChatGPT, Gemini or Copilot</li>
+          <li><b>Private.</b> What you write stays in your AI.</li>
+        </ul>
+      </form>
+    </div>
+  </div>
+
+  <footer>Reframe with Mona · A reflection exercise, not therapy or medical advice.</footer>
+</div>
+
+<!-- ============ PAGE 2 ============ -->
+<div id="page2" hidden>
+  <header class="brand"><span class="logo"><b>Reframe with Mona</b><small>Reframe Yourself</small></span></header>
+  <div class="col">
+  <div class="p2head">
+    <h1 style="font-size:clamp(34px,4.8vw,48px)">Welcome, <span id="who">there</span>. Let's reframe <em>your challenge.</em></h1>
+    <p class="lede"><b>Three steps, about 9 minutes.</b> Bookmark this page so you can come back to it.</p>
+  </div>
+
+  <ol class="flow">
+    <li><span class="num" aria-hidden="true">1</span><div>
+      <h3>Copy the prompt</h3>
+      <div><button class="btn" type="button" data-copy="p1">Copy the prompt</button></div>
+      <details class="peek"><summary>See what's in it</summary>
+        <div class="prompt"><pre id="p1">You're guiding me through Reframe Yourself, created by Mona Patel and based on her live 9-Minute Reframe. In her live sessions, a group listens to someone's challenge and offers "What if..." and "I wonder..." reframes. Here, you play that group. The aim is to help me see my challenge differently, not to solve it. Don't give advice, solutions or reassurance. Keep it one flowing session: don't ask me any questions beyond the ones below.
+
+1. NAME IT
+Start by saying only this:
+"What's the challenge that has you stuck, frustrated or under pressure? Explain it in your own words. Type it, or tap the microphone and talk it out. The more detail you give, the more helpful the reframes will be. Leave out names and anything confidential."
+Then wait for my challenge.
+
+2. TWENTY WHAT-IFS
+When I send my challenge, don't ask me anything. Go straight to 20 numbered statements, each beginning "What if..." or "I wonder...". Use my own words where you can. Each should question the story I'm telling: where I might be limiting myself, what I'm treating as fixed that might not be, what I might be protecting, and where my blind spots could be. Vary the angle: time (a year from now, or me at 90 looking back), how someone else involved might see it, what it costs if nothing changes, what this challenge might be asking of me, the opposite of my main assumption, and a different problem that might sit underneath this one. Don't repeat an angle. One sentence each. No advice.
+Under the list, ask only: "Did any of these resonate? Reply with the numbers of the ones that land."
+If I reply "sharper", write a sharper list that goes after the belief underneath.
+
+3. THE PATTERN
+When I reply, repeat the statements I picked. Then, in two or three sentences, name the pattern you see across them: the belief or story they point to. No advice.
+
+4. COMMIT
+Straight after the pattern, suggest three small actions I could take in the next week, each under 15 minutes and involving real people or real work. Ask me to pick one and say when I'll do it.
+
+5. CLOSE
+Once I've picked an action and a time, don't ask me anything else. Close the session in this order:
+a) My summary, short, under these headings: My challenge (one line) / The reframes that landed / The pattern / My action and when.
+b) One sentence that names the shift I've made, without praise or advice.
+c) Exactly this: "Keep this prompt and use it whenever something feels stuck. Now go back to the Reframe Yourself page for your next step. To go further, Mona Patel runs the 9-Minute Reframe live with teams and works one-to-one with leaders: https://calendly.com/reframewithmona/reframe-check"
+Then stop.
+
+THROUGHOUT
+This is a reflection exercise, not therapy, counselling or medical advice. If I describe something that sounds like a crisis or serious distress, pause the exercise and gently suggest I speak with a qualified professional or someone I trust.
+
+Start now with step 1.</pre></div>
+      </details>
+    </div></li>
+
+    <li><span class="num" aria-hidden="true">2</span><div>
+      <h3>Open your AI and paste the prompt</h3>
+      <p><b>Click your AI below.</b> It opens in a new tab. Paste the prompt there and press send.</p>
+      <div class="ais">
+        <a href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini</a>
+        <a href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT</a>
+        <a href="https://claude.ai/new" target="_blank" rel="noopener">Claude</a>
+        <a href="https://copilot.microsoft.com/" target="_blank" rel="noopener">Copilot</a>
+      </div>
+      <p class="demo">Use whichever AI your company allows.</p>
+    </div></li>
+  </ol>
+
+  <div class="stages">
+    <span class="lab">What happens in your AI</span>
+    <ol class="track">
+      <li><b>1</b>Talk or type your challenge</li>
+      <li><b>2</b>Get 20 what-ifs</li>
+      <li><b>3</b>Pick the ones that resonate</li>
+      <li><b>4</b>See the pattern</li>
+      <li><b>5</b>Commit to one action</li>
+      <li><b>6</b>Get your summary</li>
+    </ol>
+    <p class="tip"><b>Talk or type, whichever is easier.</b> To talk, tap the microphone in your AI app or on your keyboard. The more detail you give, the better the what-ifs.</p>
+  </div>
+
+  <ol class="flow" start="3">
+    <li><span class="num" aria-hidden="true">3</span><div>
+      <h3>Come back here when you've committed</h3>
+      <p>Your next step is just below.</p>
+    </div></li>
+  </ol>
+
+  <!-- Ending: senior leader -->
+  <section class="next" id="end-leader">
+    <span class="who">Your next step</span>
+    <h2>Take one challenge <em>further,</em> with Mona</h2>
+    <p>Your AI worked with the challenge as you framed it. <b>Mona hears what you didn't say.</b> She offers senior leaders a <b>60-minute conversation</b> where she reframes one real challenge with them. She keeps only a few of these open each month, so she asks a couple of questions first.</p>
+    <div class="acts"><a class="btn book" href="https://calendly.com/reframewithmona/reframe-check" target="_blank" rel="noopener" data-track="Leader">Book your 60-minute conversation</a></div>
+  </section>
+
+  <!-- Ending: manager / team lead -->
+  <section class="next" id="end-manager" hidden>
+    <span class="who">Your next step</span>
+    <h2>It's even better <em>with a team</em></h2>
+    <p>The live 9-Minute Reframe works with <b>10 to 25 people</b>. One person shares, the room offers the what-ifs, and everyone sees how quickly a stuck situation can open up. <b>Mona runs it as a session for teams.</b></p>
+    <div class="acts"><a class="btn book" href="https://calendly.com/reframewithmona/reframe-check" target="_blank" rel="noopener" data-track="Team session">Book a time to talk about a team session</a></div>
+    <hr>
+    <p>Know a senior leader who's carrying something heavy? Send them this page.</p>
+    <div class="acts"><button class="btn ghost" type="button" data-copy="sharelink">Copy the link</button><span class="demo" id="sharelink" style="font-family:var(--mono)">https://reframe.spexalink.com/reframe-yourself/</span></div>
+  </section>
+
+  <!-- Ending: chief of staff / EA / business partner -->
+  <section class="next" id="end-cos" hidden>
+    <span class="who">For the leader you support</span>
+    <h2>Pass it <em>on</em></h2>
+    <p>If your leader is carrying something similar, here's a note you can send them.</p>
+    <blockquote id="cosnote">I took part in a 9-Minute Reframe session with Mona Patel recently and think she could be good for you to meet. She works with senior leaders as a thinking partner, showing you the blind spots and patterns that keep new ideas from emerging, and she offers a 60-minute conversation where she reframes one real challenge with you. I think she'd be a great fit for our team. Let me know if I can connect you, or we can book a time here: https://calendly.com/reframewithmona/reframe-check</blockquote>
+    <div class="acts"><button class="btn ghost" type="button" data-copy="cosnote">Copy the note</button></div>
+    <hr>
+    <p>If another team would get something from this, Mona runs the 9-Minute Reframe as a team session.</p>
+    <div class="acts"><a class="btn book" href="https://calendly.com/reframewithmona/reframe-check" target="_blank" rel="noopener" data-track="Team session">Book a time to talk about a team session</a></div>
+  </section>
+
+  <!-- Ending: everyone else -->
+  <section class="next" id="end-other" hidden>
+    <span class="who">Keep it</span>
+    <h2>Keep the <em>prompt</em></h2>
+    <p><b>Save it somewhere you'll find it.</b> Frames shift as situations do, and it works just as well the next time something gets stuck.</p>
+    <hr>
+    <p>Know someone who'd get something from it? Send them this page.</p>
+    <div class="acts"><button class="btn ghost" type="button" data-copy="sharelink2">Copy the link</button><span class="demo" id="sharelink2" style="font-family:var(--mono)">https://reframe.spexalink.com/reframe-yourself/</span></div>
+  </section>
+
+  <section class="cant">
+    <h2>What this can do, and what it <em>can't</em></h2>
+    <dl>
+      <dt>It can</dt><dd>give you a new angle in minutes and show you which ones land.</dd>
+      <dt>It can't</dt><dd>ask about what you didn't bring: the pattern you can't see yet, or the problem you've decided isn't one.</dd>
+      <dt>Mona can</dt><dd>work with you until reframing becomes a habit, so going from stuck to open happens in the moment, with or without a prompt.</dd>
+    </dl>
+  </section>
+
+  <div class="care"><b>Please note.</b> Reframe Yourself is a reflection exercise. It is not therapy, counselling or medical advice, and it doesn't replace them. If you're struggling, please speak with a qualified professional or someone you trust.</div>
+
+  <footer>Reframe with Mona · Your challenge stays in your own AI. Nothing you write there is sent to us.</footer>
+  </div>
+</div>
+
+</div>
+
+<!-- Netlify reads this hidden form at deploy time. The sign-up submits to it. -->
+<form name="reframe-yourself" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="hidden" name="form-name" value="reframe-yourself">
+  <input name="bot-field"><input name="fname"><input name="email"><input name="role"><input name="notes"><input name="source">
+</form>
+
+<script>
+(function(){
+  "use strict";
+  var HOOK="https://hooks.zapier.com/hooks/catch/28953308/Cb79kg1jRElPmOAjN/";
+  var ends={leader:'end-leader',manager:'end-manager',cos:'end-cos',other:'end-other'};
+  var role=document.getElementById('role');
+  var p1=document.getElementById('page1'), p2=document.getElementById('page2');
+  var params=new URLSearchParams(location.search);
+  var source=params.get('src')||params.get('utm_campaign')||'';
+  var contact={};
+  function store(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+  function load(k){try{return localStorage.getItem(k)}catch(e){return null}}
+  function show(k){Object.keys(ends).forEach(function(x){document.getElementById(ends[x]).hidden=(x!==k)});}
+  function go(n){p1.hidden=(n!==1); p2.hidden=(n!==2); window.scrollTo(0,0);}
+  function roleText(){var o=role.options[role.selectedIndex]; return o?o.text:'';}
+  function track(stage,extra){
+    if(!contact.email) return;
+    var d={ts:new Date().toISOString(),stage:stage,name:contact.name||'',email:contact.email||'',role:contact.roleText||'',
+      result:extra||'',source:'Reframe Yourself'+(source?' ('+source+')':''),notes:contact.notes?'Yes':'No',referrer:document.referrer||''};
+    var body=new URLSearchParams(d);
+    try{ if(navigator.sendBeacon&&navigator.sendBeacon(HOOK,body)) return; }catch(e){}
+    try{ fetch(HOOK,{method:'POST',mode:'no-cors',body:body,keepalive:true}); }catch(e){}
+  }
+  function toNetlify(){
+    var f={'form-name':'reframe-yourself','fname':contact.name,'email':contact.email,'role':contact.roleText,'notes':contact.notes?'Yes':'No','source':source};
+    var payload=Object.keys(f).map(function(k){return encodeURIComponent(k)+'='+encodeURIComponent(f[k]||'')}).join('&');
+    try{ fetch('/reframe-yourself/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:payload,keepalive:true}); }catch(e){}
+  }
+  document.getElementById('gate').addEventListener('submit',function(e){
+    e.preventDefault();
+    var n=document.getElementById('fname').value.trim(), m=document.getElementById('email').value.trim();
+    var ok=n && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m) && role.value;
+    document.getElementById('err').hidden=!!ok;
+    if(!ok) return;
+    contact={name:n,email:m,roleText:roleText(),role:role.value,notes:document.getElementById('notes').checked};
+    store('ry_name',n); store('ry_role',role.value); store('ry_email',m);
+    document.getElementById('who').textContent=n;
+    show(role.value); toNetlify(); track('Reframe Yourself: signed up');
+    go(2);
+  });
+  document.querySelectorAll('a.book').forEach(function(a){
+    a.addEventListener('click',function(){ track('Reframe Yourself: opened booking', a.getAttribute('data-track')); });
+  });
+  document.querySelectorAll('[data-copy]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var el=document.getElementById(b.getAttribute('data-copy')), txt=el.textContent, label=b.textContent;
+      function done(t){b.textContent=t; setTimeout(function(){b.textContent=label},2200);}
+      function fallback(){var d=el.closest('details'); if(d) d.open=true; var r=document.createRange(); r.selectNodeContents(el); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); done('Selected. Press Ctrl+C to copy');}
+      try{ navigator.clipboard.writeText(txt).then(function(){done(b.getAttribute('data-copy')==='p1'?'Copied. Now click your AI below':'Copied')},fallback);}catch(err){fallback();}
+    });
+  });
+  // Returning visitors (or a link with ?start) go straight to the steps.
+  var savedName=load('ry_name'), savedRole=load('ry_role');
+  if(params.has('start') || (savedName && params.get('src')===null && location.hash==='#start')){
+    document.getElementById('who').textContent=params.get('name')||savedName||'there';
+    show(params.get('role')||savedRole||'leader'); go(2);
+  } else { show('leader'); }
+  if(savedName){ document.getElementById('fname').value=savedName; }
+  var se=load('ry_email'); if(se){ document.getElementById('email').value=se; }
+})();
+</script>
+</body>
+</html>

@@ -6,6 +6,7 @@ Mona Patel's cold funnel: the CEO video page and the Reframe Check (a three-minu
 - `assets/vsl.css`: colours and type at the top (navy + gold; Source Serif 4 + Source Sans 3)
 - `assets/check.js`: questions, qualification rules and settings (video link, Calendly link) at the top
 - `assets/img/`: Mona's photos (from her Drive, black and white)
+- `reframe-yourself/index.html`: Reframe Yourself, the warm (workshop and event) tool: sign-up, then one AI prompt and an ending by role. Sign-ups go to Netlify Forms → `reframe-yourself` and to the Reframe Leads sheet (stage "Reframe Yourself: …"). The booking button uses Mona's Reframe Check call Calendly link.
 - `netlify.toml`: noindex until launch, `/` redirects to `/ceo/`
 
 Every step (email given, left early, completed, booked) adds a row to the "Reframe Leads" Google Sheet via Zapier. Completed checks also arrive in Netlify under Forms → `reframe-check`.
